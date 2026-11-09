@@ -28,12 +28,13 @@ jobs:
           - os: ubuntu-22.04          # glibc 2.35 -> Debian 12+, Ubuntu 22.04+
             label: linux-x86_64
             ext: ""
-          - os: macos-15-intel        # Intel Macs
+          - os: macos-15-intel        # Intel Macs (also runs on Apple Silicon via Rosetta 2)
             label: macos-x86_64
             ext: ""
-          - os: macos-15              # Apple Silicon
-            label: macos-arm64
-            ext: ""
+          # NOTE: a native arm64 build needs an Apple Silicon runner. macos-15 /
+          # macos-26 / macos-latest (the arm64 labels) never get allocated for this
+          # repo -- the job sits queued ~15 min and is cancelled, so it is left out.
+          # Build arm64 locally on an Apple Silicon Mac instead, see the release notes.
 
     defaults:
       run:
