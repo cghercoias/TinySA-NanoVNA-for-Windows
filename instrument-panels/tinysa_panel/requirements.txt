@@ -1,4 +1,6 @@
-PyQt6>=6.5
+# PyQt6 6.12 moved the macOS floor to 14.0 (wheel tag macosx_14_0);
+# 6.11 is the newest release whose wheels still target macOS 10.14 Mojave.
+PyQt6>=6.5,<6.12
 pyqtgraph>=0.13.3
 numpy>=1.24
 pyserial>=3.5
