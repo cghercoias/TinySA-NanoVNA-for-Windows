@@ -1,0 +1,18 @@
+name: probe-runners
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe-macos-15:
+    runs-on: macos-15
+    steps:
+      - run: uname -m; sw_vers
+  probe-macos-26:
+    runs-on: macos-26
+    steps:
+      - run: uname -m; sw_vers
+  probe-macos-latest:
+    runs-on: macos-latest
+    steps:
+      - run: uname -m; sw_vers
