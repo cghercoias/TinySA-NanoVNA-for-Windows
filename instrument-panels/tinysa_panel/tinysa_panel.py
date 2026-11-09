@@ -149,7 +149,8 @@ QPushButton#soft { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #f5f7
 QPushButton#arrow { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #7d95b7, stop:1 #4e6a92);
     border:1px solid #3e5577; border-radius:6px; color:white; font: bold 14pt "Segoe UI"; min-height:34px; min-width:62px; }
 QPushButton#arrow:pressed { background:#3e5577; }
-QComboBox { background:white; border:1px solid #8995a6; border-radius:4px; padding:2px 6px; font: 9pt "Segoe UI"; min-width:120px; }
+QComboBox { background:white; color:#1e2530; border:1px solid #8995a6; border-radius:4px; padding:2px 6px; font: 9pt "Segoe UI"; min-width:120px; }
+QComboBox QAbstractItemView { background:white; color:#1e2530; selection-background-color:#cfe0f5; selection-color:#1e2530; outline:0; }
 #portLbl { color:#3c4a5e; font: 8pt "Segoe UI"; }
 #hint { color:#5e6f88; font: 8pt "Segoe UI"; }
 """
