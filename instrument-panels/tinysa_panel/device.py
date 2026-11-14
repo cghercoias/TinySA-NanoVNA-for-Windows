@@ -49,13 +49,28 @@ def list_ports():
     return out
 
 
+def open_port(port, baud=115200, timeout=0.05, write_timeout=2):
+    """Open a local serial port, or a pyserial URL such as
+    socket://192.168.1.50:4001 (ser2net/socat bridge) or rfc2217://host:4000.
+
+    Android tablets cannot open /dev/ttyUSB* without root, so a TCP bridge on
+    a host that does have the instrument on USB is the portable way in.
+    """
+    if serial is None:
+        raise RuntimeError("pyserial is not installed")
+    if "://" in port:
+        return serial.serial_for_url(port, baudrate=baud, timeout=timeout,
+                                     write_timeout=write_timeout)
+    return serial.Serial(port, baud, timeout=timeout, write_timeout=write_timeout)
+
+
 # --------------------------------------------------------------------------
 class SerialTransport:
     def __init__(self, port):
         if serial is None:
             raise RuntimeError("pyserial is not installed")
         self.scale = 174.0
-        self.ser = serial.Serial(port, 115200, timeout=0.05, write_timeout=2)
+        self.ser = open_port(port)
         time.sleep(0.1)
         self.ser.reset_input_buffer()
         self.ser.write(b"\r")
