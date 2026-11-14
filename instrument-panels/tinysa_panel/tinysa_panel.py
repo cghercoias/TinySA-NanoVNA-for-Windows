@@ -243,7 +243,9 @@ class FrontPanel(QMainWindow):
         # Fixed-pixel layout; FitView scales the whole panel to the window and
         # to the display so text stays readable when maximised. --ui-scale
         # multiplies that automatic fit.
-        self.view = FitView(root, self, fallback=(1500, 800))
+        self.view = FitView(root, self, fallback=(1500, 800),
+                            fit=getattr(self.args, "ui_fit", "fill"),
+                            stretch_limit=getattr(self.args, "ui_stretch_limit", 1.10))
         self.view.set_user_scale(getattr(self.args, "ui_scale", 1.0))
         self.setCentralWidget(self.view)
         outer = QVBoxLayout(root)
@@ -1869,6 +1871,11 @@ def main():
     ap.add_argument("--model", default="auto", choices=["auto", "ultra", "basic"])
     ap.add_argument("--ui-scale", type=float, default=1.0,
                     help="multiply the automatic scale-to-window fit, e.g. 1.25")
+    ap.add_argument("--ui-fit", choices=["fill", "stretch", "aspect"], default="fill",
+                    help="fill: fill the window, distortion capped (default); "
+                         "stretch: fill at any cost; aspect: undistorted, dark bars")
+    ap.add_argument("--ui-stretch-limit", type=float, default=1.10,
+                    help="max vertical/horizontal distortion allowed by --ui-fit fill")
     ap.add_argument("--screenshot", help=argparse.SUPPRESS)
     args = ap.parse_args()
 

@@ -446,7 +446,8 @@ class VNAPanel(QMainWindow):
         # to the window (and to the display, when maximised) so text is never
         # tiny on a high-resolution screen and nothing gets cut off on a small
         # one. --ui-scale multiplies that automatic fit.
-        self.view = FitView(root, self)
+        self.view = FitView(root, self, fit=getattr(self.args, "ui_fit", "fill"),
+                            stretch_limit=getattr(self.args, "ui_stretch_limit", 1.10))
         self.view.set_user_scale(getattr(self.args, "ui_scale", 1.0))
         self.setCentralWidget(self.view)
         outer = QHBoxLayout(root)
@@ -2065,6 +2066,11 @@ def main():
     ap.add_argument("--port", help="serial port, e.g. COM9")
     ap.add_argument("--ui-scale", type=float, default=1.0,
                     help="multiply the automatic scale-to-window fit, e.g. 1.25")
+    ap.add_argument("--ui-fit", choices=["fill", "stretch", "aspect"], default="fill",
+                    help="fill: fill the window, distortion capped (default); "
+                         "stretch: fill at any cost; aspect: undistorted, dark bars")
+    ap.add_argument("--ui-stretch-limit", type=float, default=1.10,
+                    help="max vertical/horizontal distortion allowed by --ui-fit fill")
     ap.add_argument("--screenshot", help=argparse.SUPPRESS)
     args = ap.parse_args()
     pg.setConfigOptions(antialias=True, foreground="#d0d0d0")
