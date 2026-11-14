@@ -23,6 +23,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QLabel,
 
 from device import DeviceWorker, list_ports, MODELS, SIM_PORT
 from widgets import PanelButton, Knob, PowerButton, Connector, ClickFrame
+from ui_scale import FitView
 
 APP_NAME = "tinySA Front Panel"
 SLOTS = 7          # softkeys per menu page
@@ -239,7 +240,12 @@ class FrontPanel(QMainWindow):
     def build_ui(self):
         root = QWidget()
         root.setObjectName("bezel")
-        self.setCentralWidget(root)
+        # Fixed-pixel layout; FitView scales the whole panel to the window and
+        # to the display so text stays readable when maximised. --ui-scale
+        # multiplies that automatic fit.
+        self.view = FitView(root, self, fallback=(1500, 800))
+        self.view.set_user_scale(getattr(self.args, "ui_scale", 1.0))
+        self.setCentralWidget(self.view)
         outer = QVBoxLayout(root)
         outer.setContentsMargins(18, 10, 18, 10)
         outer.setSpacing(6)
@@ -1861,6 +1867,8 @@ def main():
     ap.add_argument("--sim", action="store_true", help="use the built-in simulator")
     ap.add_argument("--port", help="serial port, e.g. COM7")
     ap.add_argument("--model", default="auto", choices=["auto", "ultra", "basic"])
+    ap.add_argument("--ui-scale", type=float, default=1.0,
+                    help="multiply the automatic scale-to-window fit, e.g. 1.25")
     ap.add_argument("--screenshot", help=argparse.SUPPRESS)
     args = ap.parse_args()
 
@@ -1868,7 +1876,9 @@ def main():
     app.setApplicationName(APP_NAME)
     app.setStyleSheet(QSS)
     w = FrontPanel(args)
-    w.resize(1500, 800)
+    # never open wider than the display: FitView scales the panel to fit anyway
+    avail = app.primaryScreen().availableGeometry()
+    w.resize(min(1500, avail.width()), min(800, avail.height()))
     w.show()
     if os.environ.get("DEMO"):
         def demo():

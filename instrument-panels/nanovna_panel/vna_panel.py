@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QLabel,
 from vna_device import VNAWorker, list_ports, SIM_PORT, FMIN, FMAX
 from vna_cal import Calibration, interp_c
 from vna_widgets import PanelButton, Knob, PowerBar, PortConnector, ClickFrame, DPadCenter
+from ui_scale import FitView
 
 APP_NAME = "NanoVNA-F V3 Front Panel"
 SLOTS = 8
@@ -441,7 +442,13 @@ class VNAPanel(QMainWindow):
     def build_ui(self):
         root = QWidget()
         root.setObjectName("bezel")
-        self.setCentralWidget(root)
+        # The panel is laid out in fixed pixels; FitView scales the whole thing
+        # to the window (and to the display, when maximised) so text is never
+        # tiny on a high-resolution screen and nothing gets cut off on a small
+        # one. --ui-scale multiplies that automatic fit.
+        self.view = FitView(root, self)
+        self.view.set_user_scale(getattr(self.args, "ui_scale", 1.0))
+        self.setCentralWidget(self.view)
         outer = QHBoxLayout(root)
         outer.setContentsMargins(14, 10, 14, 10)
         outer.setSpacing(12)
@@ -2056,6 +2063,8 @@ def main():
     ap = argparse.ArgumentParser(description=APP_NAME)
     ap.add_argument("--sim", action="store_true", help="use the built-in simulator")
     ap.add_argument("--port", help="serial port, e.g. COM9")
+    ap.add_argument("--ui-scale", type=float, default=1.0,
+                    help="multiply the automatic scale-to-window fit, e.g. 1.25")
     ap.add_argument("--screenshot", help=argparse.SUPPRESS)
     args = ap.parse_args()
     pg.setConfigOptions(antialias=True, foreground="#d0d0d0")
@@ -2063,7 +2072,9 @@ def main():
     app.setApplicationName(APP_NAME)
     app.setStyleSheet(QSS)
     w = VNAPanel(args)
-    w.resize(1560, 820)
+    # never open wider than the display: FitView scales the panel to fit anyway
+    avail = app.primaryScreen().availableGeometry()
+    w.resize(min(1560, avail.width()), min(820, avail.height()))
     w.show()
     if os.environ.get("DEMO"):
         def demo():
